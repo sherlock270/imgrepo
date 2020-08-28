@@ -1,0 +1,9 @@
+[build]
+  base = "/imgrepo-fe"
+  publish = "/imgrepo-fe/build"
+  command = "yarn build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

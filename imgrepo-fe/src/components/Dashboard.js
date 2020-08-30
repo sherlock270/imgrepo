@@ -1,38 +1,70 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-export default function Dashboard() {
-  const [uploadFile, setUploadFile] = useState(null);
-  const [fileUrl, setFileUrl] = useState(null);
+class Dashboard extends React.Component {
+  constructor(props) {
+    super(props);
 
-  const changeHandler = (e) => {
-    setFileUrl(URL.createObjectURL(e.target.files[0]));
-    setUploadFile(e.target.files[0]);
-    console.log(URL.createObjectURL(e.target.files[0]));
+    this.state = {
+      uploadFile: null,
+      fileUrl: null,
+    };
+
+    this.changeHandler = this.changeHandler.bind(this);
+    this.submitHandler = this.submitHandler.bind(this);
+  }
+
+  changeHandler = (e) => {
+    // console.log(e.target.files[0].name);
+    this.setState({
+      fileUrl: URL.createObjectURL(e.target.files[0]),
+      uploadFile: e.target.files[0],
+    });
   };
 
-  const submitHandler = (e) => {
+  submitHandler = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
 
     // Update the formData object
-    formData.append("uploadFile", uploadFile, uploadFile.name);
+    formData.append(
+      "uploadFile",
+      this.state.uploadFile,
+      this.state.uploadFile.name
+    );
 
-    console.log(formData);
+    // console.log(typeof formData);
+
+    axios
+      .post("http://localhost:8800", formData)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => console.error(err));
   };
 
-  return (
-    <div className="dash-container">
-      <h1>Dashboard</h1>
-      <Link to="/">Landing</Link>
-      <form onSubmit={submitHandler}>
-        <input type="file" onChange={changeHandler} />
-        <button type="submit">Submit</button>
-      </form>
-      {uploadFile ? (
-        <img src={fileUrl} height="100px" width="100px" alt="preview" />
-      ) : null}
-    </div>
-  );
+  render() {
+    return (
+      <div className="dash-container">
+        <h1>Dashboard</h1>
+        <Link to="/">Landing</Link>
+        <form onSubmit={this.submitHandler}>
+          <input type="file" onChange={this.changeHandler} />
+          <button type="submit">Submit</button>
+        </form>
+        {this.state.fileUrl ? (
+          <img
+            src={this.state.fileUrl}
+            height="100px"
+            width="100px"
+            alt="preview"
+          />
+        ) : null}
+      </div>
+    );
+  }
 }
+
+export default Dashboard;

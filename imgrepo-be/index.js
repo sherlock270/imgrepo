@@ -4,9 +4,12 @@ const axios = require("axios");
 const cors = require("cors");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
+const knex = require("knex");
+const config = require("./knexfile");
 
 const server = express();
 const upload = multer();
+const db = knex(config.development);
 
 server.use(cors());
 server.use(express.json());
@@ -21,16 +24,18 @@ cloudinary.config({
 });
 
 server.get("/lib", (req, res) => {
-  res.status(200).json({
-    images: [
-      "http://res.cloudinary.com/dalvqmups/image/upload/v1598765845/u8ctbaigtgay9wkxkeyg.jpg",
-    ],
-  });
+  db("Images")
+    .select("*")
+    .then((data) => {
+      res.status(200).json({ data });
+    })
+    .catch((err) => res.status(500).json({ error: err }));
 });
 
 server.post("/upload", (req, res) => {
   const img = req.files[0];
   const base64img = img.buffer.toString("base64");
+  console.log("img", img);
 
   cloudinary.uploader.upload(
     `data:${img.mimetype};base64,${base64img}`,
@@ -39,7 +44,22 @@ server.post("/upload", (req, res) => {
         console.log("error", error);
         res.status(500).json({ error });
       } else {
-        res.status(201).json({ message: "received a request", result });
+        console.log("inserting");
+        let newImg = {
+          name: img.originalname,
+          description: "a test image",
+          user: "test user",
+          img_url: result.url,
+        };
+        db("Images")
+          .insert(newImg)
+          .then((result) => {
+            if (result) {
+              console.log("insertion result", result);
+              res.status(201).json({ newImg: newImg });
+            }
+          })
+          .catch((err) => res.status(500).json({ error: err }));
       }
     }
   );

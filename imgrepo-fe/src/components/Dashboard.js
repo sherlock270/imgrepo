@@ -7,20 +7,32 @@ class Dashboard extends React.Component {
     super(props);
 
     this.state = {
-      uploadFile: null,
+      uploadFile: "",
       fileUrl: null,
+      images: [],
     };
 
     this.changeHandler = this.changeHandler.bind(this);
     this.submitHandler = this.submitHandler.bind(this);
   }
 
+  componentDidMount() {
+    axios
+      .get("http://localhost:8800/lib")
+      .then((data) => this.setState({ images: data.data.data }))
+      .catch((err) => console.error(err));
+  }
+
   changeHandler = (e) => {
-    // console.log(e.target.files[0].name);
-    this.setState({
-      fileUrl: URL.createObjectURL(e.target.files[0]),
-      uploadFile: e.target.files[0],
-    });
+    console.log();
+    if (e.target.files.length > 0) {
+      this.setState({
+        fileUrl: URL.createObjectURL(e.target.files[0]),
+        uploadFile: e.target.files[0],
+      });
+    } else {
+      this.setState({ fileUrl: "", uploadFile: "" });
+    }
   };
 
   submitHandler = (e) => {
@@ -35,12 +47,17 @@ class Dashboard extends React.Component {
       this.state.uploadFile.name
     );
 
-    // console.log(typeof formData);
-
     axios
-      .post("http://localhost:8800", formData)
+      .post("http://localhost:8800/upload", formData)
       .then((res) => {
-        console.log(res);
+        this.mainInput.value = "";
+        this.setState((prevState) => {
+          return {
+            images: [res.data.newImg, ...prevState.images],
+            uploadFile: "",
+            fileUrl: null,
+          };
+        });
       })
       .catch((err) => console.error(err));
   };
@@ -51,17 +68,42 @@ class Dashboard extends React.Component {
         <h1>Dashboard</h1>
         <Link to="/">Landing</Link>
         <form onSubmit={this.submitHandler}>
-          <input type="file" onChange={this.changeHandler} />
+          <input
+            type="file"
+            onChange={this.changeHandler}
+            ref={(ref) => (this.mainInput = ref)}
+          />
           <button type="submit">Submit</button>
         </form>
         {this.state.fileUrl ? (
-          <img
-            src={this.state.fileUrl}
-            height="100px"
-            width="100px"
-            alt="preview"
-          />
+          <div className="preview">
+            <h2>Preview</h2>
+            <img
+              src={this.state.fileUrl}
+              height="100px"
+              width="100px"
+              alt="preview"
+            />
+          </div>
         ) : null}
+        <div className="lib">
+          <h2>Current Images</h2>
+          {this.state.images.length > 0 ? (
+            this.state.images.map((image) => {
+              return (
+                <img
+                  src={image.img_url}
+                  alt={image.description}
+                  key={image.img_url}
+                  height="100px"
+                  width="100px"
+                />
+              );
+            })
+          ) : (
+            <h3>No Images to Display</h3>
+          )}
+        </div>
       </div>
     );
   }

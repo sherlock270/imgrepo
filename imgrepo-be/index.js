@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
-const axios = require("axios");
 const cors = require("cors");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const knex = require("knex");
 const config = require("./knexfile");
+const bcrypt = require("bcryptjs");
 
 const server = express();
 const upload = multer();
@@ -63,6 +63,35 @@ server.post("/upload", (req, res) => {
       }
     }
   );
+});
+
+server.post("/register", (req, res) => {
+  const { username, password } = req.body;
+
+  bcrypt.hash(password, 8).then((hashed) => {
+    db("Users")
+      .insert({ username: username, password: hashed })
+      .then((data) => {
+        res.status(201).json({ message: "success", data: data });
+      })
+      .catch((err) => console.error(err));
+  });
+});
+
+server.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  db("Users")
+    .select("password")
+    .where({ username: username })
+    .first()
+    .then((data) => {
+      if (data && bcrypt.compareSync(password, data.password)) {
+        res.status(200).json({ message: "success" });
+      } else {
+        res.status(200).json({ message: "fail" });
+      }
+    })
+    .catch((err) => console.error(err));
 });
 
 server.listen(8800, () => {

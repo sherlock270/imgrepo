@@ -12,7 +12,7 @@ const bcrypt = require("bcryptjs");
 const server = express();
 const upload = multer();
 const db = knex(config.development);
-const port = process.env.port || 8800;
+const port = process.env.PORT || 8800;
 
 // set up middleware
 server.use(cors());

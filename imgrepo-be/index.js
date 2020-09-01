@@ -125,6 +125,6 @@ server.put("/edit", (req, res) => {
     .catch((err) => console.error(err));
 });
 
-server.listen(8800, () => {
+server.listen(port, () => {
   console.log(`=== Listening on port ${port} ===`);
 });

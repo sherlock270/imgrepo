@@ -6,6 +6,7 @@ const cloudinary = require("cloudinary").v2;
 const knex = require("knex");
 const config = require("./knexfile");
 const bcrypt = require("bcryptjs");
+const { response } = require("express");
 
 const server = express();
 const upload = multer();
@@ -90,6 +91,17 @@ server.post("/login", (req, res) => {
       } else {
         res.status(200).json({ message: "fail" });
       }
+    })
+    .catch((err) => console.error(err));
+});
+
+server.delete("/delete/:id", (req, res) => {
+  db("Images")
+    .where({ id: req.params.id })
+    .del()
+    .then((response) => {
+      console.log(response);
+      res.status(200).json({ message: "success" });
     })
     .catch((err) => console.error(err));
 });

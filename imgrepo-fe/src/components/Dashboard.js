@@ -17,11 +17,15 @@ class Dashboard extends React.Component {
   }
 
   componentDidMount() {
+    this.refreshLib();
+  }
+
+  refreshLib = () => {
     axios
       .get("http://localhost:8800/lib")
       .then((data) => this.setState({ images: data.data.data }))
       .catch((err) => console.error(err));
-  }
+  };
 
   changeHandler = (e) => {
     console.log();
@@ -51,13 +55,11 @@ class Dashboard extends React.Component {
       .post("http://localhost:8800/upload", formData)
       .then((res) => {
         this.mainInput.value = "";
-        this.setState((prevState) => {
-          return {
-            images: [res.data.newImg, ...prevState.images],
-            uploadFile: "",
-            fileUrl: null,
-          };
+        this.setState({
+          uploadFile: "",
+          fileUrl: null,
         });
+        this.refreshLib();
       })
       .catch((err) => console.error(err));
   };
@@ -71,6 +73,7 @@ class Dashboard extends React.Component {
           <input
             type="file"
             onChange={this.changeHandler}
+            accept="image/*"
             ref={(ref) => (this.mainInput = ref)}
           />
           <button type="submit">Submit</button>
@@ -89,15 +92,22 @@ class Dashboard extends React.Component {
         <div className="lib">
           <h2>Current Images</h2>
           {this.state.images.length > 0 ? (
-            this.state.images.map((image) => {
+            this.state.images.map((image, index) => {
               return (
-                <img
-                  src={image.img_url}
-                  alt={image.description}
+                <Link
+                  to={{
+                    pathname: "/image",
+                    state: { image: image },
+                  }}
                   key={image.img_url}
-                  height="100px"
-                  width="100px"
-                />
+                >
+                  <img
+                    src={image.img_url}
+                    alt={image.description}
+                    height="100px"
+                    width="100px"
+                  />
+                </Link>
               );
             })
           ) : (

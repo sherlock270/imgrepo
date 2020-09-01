@@ -6,6 +6,7 @@ import Landing from "./components/Landing";
 import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import ImageDetail from "./components/ImageDetail";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
+      <Route path="/image" component={ImageDetail} />
     </div>
   );
 }

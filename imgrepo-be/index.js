@@ -11,7 +11,7 @@ const bcrypt = require("bcryptjs");
 // set up config
 const server = express();
 const upload = multer();
-const db = knex(config.development);
+const db = knex(config[process.env.NODE_ENV]);
 const port = process.env.PORT || 8800;
 
 // set up middleware

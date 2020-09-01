@@ -28,7 +28,7 @@ export default function Login() {
     e.preventDefault();
 
     axios
-      .post("http://localhost:8800/login", {
+      .post("https://img-repo.herokuapp.com/login", {
         username: username,
         password: pass,
       })

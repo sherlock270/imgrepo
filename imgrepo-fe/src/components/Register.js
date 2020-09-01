@@ -28,7 +28,7 @@ export default function Register() {
     e.preventDefault();
 
     axios
-      .post("http://localhost:8800/register", {
+      .post("https://img-repo.herokuapp.com/register", {
         username: username,
         password: pass,
       })

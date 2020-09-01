@@ -22,7 +22,7 @@ class Dashboard extends React.Component {
 
   refreshLib = () => {
     axios
-      .get("http://localhost:8800/lib")
+      .get("https://img-repo.herokuapp.com/lib")
       .then((data) => this.setState({ images: data.data.data }))
       .catch((err) => console.error(err));
   };
@@ -52,7 +52,7 @@ class Dashboard extends React.Component {
     );
 
     axios
-      .post("http://localhost:8800/upload", formData)
+      .post("https://img-repo.herokuapp.com/upload", formData)
       .then((res) => {
         this.mainInput.value = "";
         this.setState({

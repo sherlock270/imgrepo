@@ -9,7 +9,7 @@ export default function ImageDetail(props) {
 
   function imgDelete(id) {
     axios
-      .delete(`http://localhost:8800/delete/${id}`)
+      .delete(`https://img-repo.herokuapp.com/delete/${id}`)
       .then(() => {
         props.history.push("/dashboard");
       })
@@ -18,7 +18,7 @@ export default function ImageDetail(props) {
 
   function submitHandler() {
     axios
-      .put("http://localhost:8800/edit", {
+      .put("https://img-repo.herokuapp.com/edit", {
         id: image.id,
         description: description,
         name: name,

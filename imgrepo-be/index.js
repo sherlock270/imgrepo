@@ -1,3 +1,4 @@
+// import required items
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -6,24 +7,28 @@ const cloudinary = require("cloudinary").v2;
 const knex = require("knex");
 const config = require("./knexfile");
 const bcrypt = require("bcryptjs");
-const { response } = require("express");
 
+// set up config
 const server = express();
 const upload = multer();
 const db = knex(config.development);
+const port = process.env.port || 8800;
 
+// set up middleware
 server.use(cors());
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(upload.array("uploadFile"));
 server.use(express.static("public"));
 
+// set cloudinary env variables
 cloudinary.config({
   cloud_name: process.env.cloud_name,
   api_key: process.env.api_key,
   api_secret: process.env.api_secret,
 });
 
+// get all images
 server.get("/lib", (req, res) => {
   db("Images")
     .select("*")
@@ -33,19 +38,18 @@ server.get("/lib", (req, res) => {
     .catch((err) => res.status(500).json({ error: err }));
 });
 
+// add a new image
 server.post("/upload", (req, res) => {
   const img = req.files[0];
+  // convert image to base64 string for upload
   const base64img = img.buffer.toString("base64");
-  console.log("img", img);
 
   cloudinary.uploader.upload(
     `data:${img.mimetype};base64,${base64img}`,
     (error, result) => {
       if (error) {
-        console.log("error", error);
         res.status(500).json({ error });
       } else {
-        console.log("inserting");
         let newImg = {
           name: img.originalname,
           description: "a test image",
@@ -56,7 +60,6 @@ server.post("/upload", (req, res) => {
           .insert(newImg)
           .then((result) => {
             if (result) {
-              console.log("insertion result", result);
               res.status(201).json({ newImg: newImg });
             }
           })
@@ -66,9 +69,11 @@ server.post("/upload", (req, res) => {
   );
 });
 
+//create a new user
 server.post("/register", (req, res) => {
   const { username, password } = req.body;
 
+  // create password hash to be stored in db
   bcrypt.hash(password, 8).then((hashed) => {
     db("Users")
       .insert({ username: username, password: hashed })
@@ -79,6 +84,7 @@ server.post("/register", (req, res) => {
   });
 });
 
+// login route
 server.post("/login", (req, res) => {
   const { username, password } = req.body;
   db("Users")
@@ -86,6 +92,7 @@ server.post("/login", (req, res) => {
     .where({ username: username })
     .first()
     .then((data) => {
+      //compare submitted password with user's password hash
       if (data && bcrypt.compareSync(password, data.password)) {
         res.status(200).json({ message: "success" });
       } else {
@@ -95,6 +102,7 @@ server.post("/login", (req, res) => {
     .catch((err) => console.error(err));
 });
 
+// delete a given image id
 server.delete("/delete/:id", (req, res) => {
   db("Images")
     .where({ id: req.params.id })
@@ -106,6 +114,17 @@ server.delete("/delete/:id", (req, res) => {
     .catch((err) => console.error(err));
 });
 
+// edit image info
+server.put("/edit", (req, res) => {
+  db("Images")
+    .where({ id: req.body.id })
+    .update({ description: req.body.description, name: req.body.name })
+    .then(() => {
+      res.status(200).json({ message: "success" });
+    })
+    .catch((err) => console.error(err));
+});
+
 server.listen(8800, () => {
-  console.log("Listening on port 8800");
+  console.log(`=== Listening on port ${port} ===`);
 });

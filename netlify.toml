@@ -1,6 +1,6 @@
 [build]
   base = "/imgrepo-fe"
-  publish = "/imgrepo-fe/build"
+  publish = "/build"
   command = "yarn build"
 
 [[redirects]]

@@ -10,6 +10,8 @@ class Dashboard extends React.Component {
       uploadFile: "",
       fileUrl: null,
       images: [],
+      name: "",
+      description: "",
     };
 
     this.changeHandler = this.changeHandler.bind(this);
@@ -51,6 +53,9 @@ class Dashboard extends React.Component {
       this.state.uploadFile.name
     );
 
+    formData.append("name", this.state.name);
+    formData.append("description", this.state.description);
+
     axios
       .post("https://img-repo.herokuapp.com/upload", formData)
       .then((res) => {
@@ -75,6 +80,20 @@ class Dashboard extends React.Component {
             onChange={this.changeHandler}
             accept="image/*"
             ref={(ref) => (this.mainInput = ref)}
+          />
+          <input
+            type="text"
+            onChange={(e) => {
+              this.setState({ name: e.target.value });
+            }}
+            placeholder="Enter the name"
+          />
+          <input
+            type="text"
+            onChange={(e) => {
+              this.setState({ description: e.target.value });
+            }}
+            placeholder="Enter description"
           />
           <button type="submit">Submit</button>
         </form>

@@ -54,7 +54,7 @@ server.post("/upload", (req, res) => {
           name: req.body.name,
           description: req.body.description,
           user: "test user",
-          img_url: result.url,
+          img_url: result.secure_url,
         };
         db("Images")
           .insert(newImg)

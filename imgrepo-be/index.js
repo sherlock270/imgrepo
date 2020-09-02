@@ -51,8 +51,8 @@ server.post("/upload", (req, res) => {
         res.status(500).json({ error });
       } else {
         let newImg = {
-          name: img.originalname,
-          description: "a test image",
+          name: req.body.name,
+          description: req.body.description,
           user: "test user",
           img_url: result.url,
         };

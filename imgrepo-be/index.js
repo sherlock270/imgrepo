@@ -7,6 +7,7 @@ const cloudinary = require("cloudinary").v2;
 const knex = require("knex");
 const config = require("./knexfile");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // set up config
 const server = express();
@@ -27,7 +28,9 @@ cloudinary.config({
   api_key: process.env.api_key,
   api_secret: process.env.api_secret,
 });
-
+server.get("/", (req, res) => {
+  res.status(200).json({ data: req.headers.token });
+});
 // get all images
 server.get("/lib", (req, res) => {
   db("Images")
@@ -78,9 +81,24 @@ server.post("/register", (req, res) => {
     db("Users")
       .insert({ username: username, password: hashed })
       .then((data) => {
-        res.status(201).json({ message: "success", data: data });
+        jwt.sign(
+          { username: username },
+          process.env.JWT_KEY,
+          {
+            expiresIn: "1 day",
+          },
+          (err, token) => {
+            if (err) {
+              res.status(400).json({ message: "fail", error: err });
+            } else {
+              res.status(201).json({ message: "success", token: token });
+            }
+          }
+        );
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        res.status(403).json({ message: "fail", error: err });
+      });
   });
 });
 
@@ -94,7 +112,19 @@ server.post("/login", (req, res) => {
     .then((data) => {
       //compare submitted password with user's password hash
       if (data && bcrypt.compareSync(password, data.password)) {
-        res.status(200).json({ message: "success" });
+        jwt.sign(
+          { username: username },
+          process.env.JWT_KEY,
+          {
+            expiresIn: "1 day",
+          },
+          (err, token) => {
+            if (err) {
+              res.status(400).json({ message: "fail", error: err });
+            }
+            res.status(200).json({ message: "success", token: token });
+          }
+        );
       } else {
         res.status(200).json({ message: "fail" });
       }
@@ -128,3 +158,7 @@ server.put("/edit", (req, res) => {
 server.listen(port, () => {
   console.log(`=== Listening on port ${port} ===`);
 });
+
+function verifyToken(token) {
+  return jwt.verify(token, process.env.JWT_KEY);
+}

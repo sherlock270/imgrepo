@@ -33,7 +33,6 @@ export default function Login(props) {
         password: pass,
       })
       .then((res) => {
-        console.log("res", res);
         if (res.data.message === "success") {
           localStorage.setItem("token", res.data.token);
           localStorage.setItem("expiry", res.data.expiry);

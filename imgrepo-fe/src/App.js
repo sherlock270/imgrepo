@@ -15,35 +15,35 @@ function App() {
       <Route exact path="/" component={Landing} />
       <Route
         path="/dashboard"
-        render={
-          localStorage.getItem("token") &&
-          Date.now() < localStorage.getItem("expiry") ? (
-            <Dashboard />
-          ) : (
-            () => {
-              alert("You're not logged in");
-              localStorage.setItem("token", "");
-              return <Redirect to="/" />;
-            }
-          )
-        }
+        render={(props) => {
+          if (
+            localStorage.getItem("token").length > 1 &&
+            Date.now() < localStorage.getItem("expiry")
+          ) {
+            return <Dashboard {...props} />;
+          } else {
+            alert("You're not logged in");
+            localStorage.setItem("token", "");
+            return <Redirect to="/" />;
+          }
+        }}
       />
-      <Route path="/register" component={Register} />
-      <Route path="/login" component={Login} />
+      <Route path="/register" render={(props) => <Register {...props} />} />
+      <Route path="/login" render={(props) => <Login {...props} />} />
       <Route
         path="/image"
-        render={
-          localStorage.getItem("token") &&
-          Date.now() < localStorage.getItem("expiry") ? (
-            <ImageDetail />
-          ) : (
-            () => {
-              alert("You're not logged in");
-              localStorage.setItem("token", "");
-              return <Redirect to="/" />;
-            }
-          )
-        }
+        render={(props) => {
+          if (
+            localStorage.getItem("token") &&
+            Date.now() < localStorage.getItem("expiry")
+          ) {
+            return <ImageDetail {...props} />;
+          } else {
+            alert("You're not logged in");
+            localStorage.setItem("token", "");
+            return <Redirect to="/" />;
+          }
+        }}
       />
     </div>
   );

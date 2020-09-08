@@ -35,7 +35,7 @@ export default function Register(props) {
       .then((res) => {
         if (res.data.message === "success") {
           localStorage.setItem("token", res.data.token);
-          localStorage.setItem("expiry", res.data.expiry);
+          props.setExpiry(res.data.expiry);
           props.history.push("/dashboard");
         } else if (res.error.errno === 19) {
           alert("That username is already taken");

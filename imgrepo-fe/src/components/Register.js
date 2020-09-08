@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function Register() {
+export default function Register(props) {
   const [username, setUsername] = useState("");
   const [pass, setPass] = useState("");
   return (
@@ -33,8 +33,16 @@ export default function Register() {
         password: pass,
       })
       .then((res) => {
-        console.log("res", res);
-        localStorage.setItem("loggedIn", "true");
+        if (res.data.message === "success") {
+          localStorage.setItem("token", res.data.token);
+          props.history.push("/dashboard");
+        } else if (res.error.errno === 19) {
+          alert("That username is already taken");
+          setPass("");
+          setUsername("");
+        } else {
+          alert("An error has occurred. Please try again later");
+        }
       })
       .catch((err) => console.error(err));
   }

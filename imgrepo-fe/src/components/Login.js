@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function Login() {
+export default function Login(props) {
   const [username, setUsername] = useState("");
   const [pass, setPass] = useState("");
   return (
@@ -35,7 +35,8 @@ export default function Login() {
       .then((res) => {
         console.log("res", res);
         if (res.data.message === "success") {
-          localStorage.setItem("loggedIn", "true");
+          localStorage.setItem("token", res.data.token);
+          props.history.push("/dashboard");
         } else {
           alert("Incorrect username or password");
         }

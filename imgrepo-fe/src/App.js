@@ -47,9 +47,11 @@ function App() {
 function isLoggedIn() {
   const token = localStorage.getItem("token");
   if (token && token.length > 8) {
-    axios.post("https://img-repo.herokuapp.com/verify", token).then((res) => {
-      return res.loggedIn;
-    });
+    axios
+      .post("https://img-repo.herokuapp.com/verify", { token: token })
+      .then((res) => {
+        return res.loggedIn;
+      });
   } else {
     return false;
   }

@@ -7,7 +7,6 @@ import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import ImageDetail from "./components/ImageDetail";
-import axios from "axios";
 
 function App() {
   return (
@@ -16,46 +15,38 @@ function App() {
       <Route exact path="/" component={Landing} />
       <Route
         path="/dashboard"
-        render={() => {
-          if (isLoggedIn()) {
-            return <Dashboard />;
-          } else {
-            alert("You're not logged in");
-            localStorage.setItem("token", "");
-            return <Redirect to="/" />;
-          }
-        }}
+        render={
+          localStorage.getItem("token") &&
+          Date.now() < localStorage.getItem("expiry") ? (
+            <Dashboard />
+          ) : (
+            () => {
+              alert("You're not logged in");
+              localStorage.setItem("token", "");
+              return <Redirect to="/" />;
+            }
+          )
+        }
       />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
       <Route
         path="/image"
-        render={() => {
-          if (isLoggedIn()) {
-            return <ImageDetail />;
-          } else {
-            localStorage.setItem("token", "");
-            alert("You're not logged in");
-            return <Redirect to="/" />;
-          }
-        }}
+        render={
+          localStorage.getItem("token") &&
+          Date.now() < localStorage.getItem("expiry") ? (
+            <ImageDetail />
+          ) : (
+            () => {
+              alert("You're not logged in");
+              localStorage.setItem("token", "");
+              return <Redirect to="/" />;
+            }
+          )
+        }
       />
     </div>
   );
-}
-
-function isLoggedIn() {
-  const token = localStorage.getItem("token");
-  if (token && token.length > 8) {
-    console.log("checking token", token);
-    axios
-      .post("https://img-repo.herokuapp.com/verify", { token: token })
-      .then((res) => {
-        return res.loggedIn;
-      });
-  } else {
-    return false;
-  }
 }
 
 export default App;

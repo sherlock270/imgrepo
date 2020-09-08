@@ -36,6 +36,7 @@ export default function Login(props) {
         console.log("res", res);
         if (res.data.message === "success") {
           localStorage.setItem("token", res.data.token);
+          localStorage.setItem("expiry", res.data.expiry);
           props.history.push("/dashboard");
         } else {
           alert("Incorrect username or password");

@@ -12,6 +12,7 @@ class Dashboard extends React.Component {
       images: [],
       name: "",
       description: "",
+      loading: false,
     };
 
     this.changeHandler = this.changeHandler.bind(this);
@@ -23,9 +24,10 @@ class Dashboard extends React.Component {
   }
 
   refreshLib = () => {
+    this.setState({ loading: true });
     axios
       .get("https://img-repo.herokuapp.com/lib")
-      .then((data) => this.setState({ images: data.data.data }))
+      .then((data) => this.setState({ images: data.data.data, loading: false }))
       .catch((err) => console.error(err));
   };
 
@@ -110,7 +112,9 @@ class Dashboard extends React.Component {
         ) : null}
         <div className="lib">
           <h2>Current Images</h2>
-          {this.state.images.length > 0 ? (
+          {this.state.loading ? (
+            <h2>Loading</h2>
+          ) : this.state.images.length > 0 ? (
             this.state.images.map((image, index) => {
               return (
                 <Link

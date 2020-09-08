@@ -47,6 +47,7 @@ function App() {
 function isLoggedIn() {
   const token = localStorage.getItem("token");
   if (token && token.length > 8) {
+    console.log("checking token", token);
     axios
       .post("https://img-repo.herokuapp.com/verify", { token: token })
       .then((res) => {

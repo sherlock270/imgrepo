@@ -91,7 +91,11 @@ server.post("/register", (req, res) => {
             if (err) {
               res.status(400).json({ message: "fail", error: err });
             } else {
-              res.status(201).json({ message: "success", token: token });
+              // expiry is the current time plus 24 hours(in milliseconds)
+              const expiry = Date.now() + 60 * 60 * 24 * 1000;
+              res
+                .status(201)
+                .json({ message: "success", token: token, expiry: expiry });
             }
           }
         );
@@ -120,9 +124,13 @@ server.post("/login", (req, res) => {
           },
           (err, token) => {
             if (err) {
-              res.status(400).json({ message: "fail", error: err });
+              res.status(400).json({ message: "fail", error: err, token });
+            } else {
+              const expiry = Date.now() + 1000 * 60 * 60 * 24;
+              res
+                .status(200)
+                .json({ message: "success", token: token, expiry: expiry });
             }
-            res.status(200).json({ message: "success", token: token });
           }
         );
       } else {
@@ -134,6 +142,7 @@ server.post("/login", (req, res) => {
 
 server.post("/verify", (req, res) => {
   const loggedIn = verifyToken(req.body.token);
+  console.log(loggedIn);
   if (loggedIn.name) res.status(403).json({ loggedIn: false });
   else res.status(200).json({ loggedIn: true });
 });

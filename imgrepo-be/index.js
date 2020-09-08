@@ -132,6 +132,12 @@ server.post("/login", (req, res) => {
     .catch((err) => console.error(err));
 });
 
+server.post("/verify", (req, res) => {
+  const loggedIn = verifyToken(req.body.token);
+  if (loggedIn.name) res.status(403).json({ loggedIn: false });
+  else res.status(200).json({ loggedIn: true });
+});
+
 // delete a given image id
 server.delete("/delete/:id", (req, res) => {
   db("Images")
@@ -160,5 +166,11 @@ server.listen(port, () => {
 });
 
 function verifyToken(token) {
-  return jwt.verify(token, process.env.JWT_KEY);
+  return jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
+    if (err) {
+      return err;
+    } else {
+      return decoded;
+    }
+  });
 }
